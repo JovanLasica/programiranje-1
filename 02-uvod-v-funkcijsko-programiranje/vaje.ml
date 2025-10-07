@@ -11,7 +11,7 @@
  predstavljen s seznamom števil s plavajočo vejico, pomnoži z danim skalarjem.
 [*----------------------------------------------------------------------------*)
 
-let razteg a [x; y; z] = [a *. x; a *. y; a *. z]
+let razteg koef vect = List.map (fun a -> koef *. a) vect 
 
 let primer_vektorji_1 = razteg 2.0 [1.0; 2.0; 3.0]
 (* val primer_vektorji_1 : float list = [2.; 4.; 6.] *)
@@ -21,7 +21,7 @@ let primer_vektorji_1 = razteg 2.0 [1.0; 2.0; 3.0]
  vsoto dveh vektorjev.
 [*----------------------------------------------------------------------------*)
 
-let sestej [a; b; c] [d; e; f] = [a +. d; b +. e; c +. f]
+let sestej a b = List.map2 ( +. ) a b
 
 let primer_vektorji_2 = sestej [1.0; 2.0; 3.0] [4.0; 5.0; 6.0]
 (* val primer_vektorji_2 : float list = [5.; 7.; 9.] *)
@@ -35,7 +35,7 @@ let primer_vektorji_2 = sestej [1.0; 2.0; 3.0] [4.0; 5.0; 6.0]
 
 let vsota_seznama = List.fold_left (+.) 0.
 
-let skalarni_produkt [a; b; c] [d; e; f] = vsota_seznama [a *. d; b *. e; c *. f]
+let skalarni_produkt v1 v2 = vsota_seznama (List.map2 ( *. ) v1 v2)
 
 let primer_vektorji_3 = skalarni_produkt [1.0; 2.0; 3.0] [4.0; 5.0; 6.0]
 (* val primer_vektorji_3 : float = 32. *)
@@ -45,7 +45,7 @@ let primer_vektorji_3 = skalarni_produkt [1.0; 2.0; 3.0] [4.0; 5.0; 6.0]
  vektorja.
 [*----------------------------------------------------------------------------*)
 
-let norma _ _ = ()
+let norma vect = sqrt (skalarni_produkt vect vect)
 
 let primer_vektorji_4 = norma [3.0; 4.0]
 (* val primer_vektorji_4 : float = 5. *)
@@ -55,7 +55,7 @@ let primer_vektorji_4 = norma [3.0; 4.0]
  kot med dvema vektorjema v radianih.
 [*----------------------------------------------------------------------------*)
 
-let vmesni_kot _ _ = ()
+let vmesni_kot v1 v2 = acos (skalarni_produkt v1 v2 /. (norma (v1) *. norma (v2)))
 
 let primer_vektorji_5 = vmesni_kot [1.0; 0.0] [0.0; 1.0]
 (* val primer_vektorji_5 : float = 1.57079632679489656 *)
@@ -65,7 +65,7 @@ let primer_vektorji_5 = vmesni_kot [1.0; 0.0] [0.0; 1.0]
  vektor.
 [*----------------------------------------------------------------------------*)
 
-let normirani _ = ()
+let normirani vect = razteg (1. /. (norma vect)) vect
 
 let primer_vektorji_6 = normirani [3.0; 4.0]
 (* val primer_vektorji_6 : float list = [0.600000000000000089; 0.8] *)
@@ -75,7 +75,7 @@ let primer_vektorji_6 = normirani [3.0; 4.0]
  izračuna projekcijo prvega vektorja na drugega.
 [*----------------------------------------------------------------------------*)
 
-let projekcija _ _ = ()
+let projekcija v1 v2 = razteg (skalarni_produkt v1 v2 /. norma v2) v2
 
 let primer_vektorji_7 = projekcija [3.0; 4.0] [1.0; 0.0]
 (* val primer_vektorji_7 : float list = [3.; 0.] *)
@@ -89,7 +89,7 @@ let primer_vektorji_7 = projekcija [3.0; 4.0] [1.0; 0.0]
  oznake in vsebino ter vrne niz, ki predstavlja ustrezno HTML oznako.
 [*----------------------------------------------------------------------------*)
 
-let ovij _ _ = ()
+let ovij a b = "<" ^ a ^ ">" ^ b ^ "<" ^ a ^ ">"
 
 let primer_html_1 = ovij "h1" "Hello, world!"
 (* val primer_html_1 : string = "<h1>Hello, world!</h1>" *)
@@ -100,7 +100,8 @@ let primer_html_1 = ovij "h1" "Hello, world!"
  ustrezno število presledkov.
 [*----------------------------------------------------------------------------*)
 
-let zamakni _ _ = ()
+let zamakni stevilo niz = 
+  String.concat ("\n" ^ (String.make stevilo ' ')) (String.split_on_char '\n' ((String.make stevilo ' ') ^ niz))
 
 let primer_html_2 = zamakni 4 "Hello,\nworld!"
 (* val primer_html_2 : string = "    Hello,\n    world!" *)
@@ -110,7 +111,7 @@ let primer_html_2 = zamakni 4 "Hello,\nworld!"
  niz, ki predstavlja ustrezno zamaknjen neurejeni seznam v HTML-ju:
 [*----------------------------------------------------------------------------*)
 
-let ul _ = ()
+let ul _ _ = 
 
 let primer_html_3 = ul ["ananas"; "banana"; "čokolada"]
 (* val primer_html_3 : string =
