@@ -111,7 +111,13 @@ let primer_html_2 = zamakni 4 "Hello,\nworld!"
  niz, ki predstavlja ustrezno zamaknjen neurejeni seznam v HTML-ju:
 [*----------------------------------------------------------------------------*)
 
-let ul _ _ = 
+let ul seznam =
+  seznam
+  |> List.map (ovij "li")
+  |> String.concat "\n"
+  |> zamakni 2
+  |> (fun vsebina -> "\n" ^ vsebina ^ "\n")
+  |> ovij "ul"
 
 let primer_html_3 = ul ["ananas"; "banana"; "čokolada"]
 (* val primer_html_3 : string =
@@ -126,7 +132,12 @@ let primer_html_3 = ul ["ananas"; "banana"; "čokolada"]
  niz, ki vsebuje vejico, loči na del pred in del za njo.
 [*----------------------------------------------------------------------------*)
 
-let razdeli_vrstico _ = ()
+let razdeli_vrstico niz =
+  let indeks = String.index niz ',' in
+  let dolzina = String.length niz in
+  let prvi = String.sub niz 0 indeks
+  and drugi = String.sub niz (indeks + 1) (dolzina - indeks - 1) in
+  (prvi, drugi)
 
 let primer_seznam_1 = razdeli_vrstico "mleko, 2"
 (* val primer_seznam_1 : string * string = ("mleko", "2") *)
@@ -137,7 +148,16 @@ let primer_seznam_1 = razdeli_vrstico "mleko, 2"
  vrednost"`, in vrne seznam ustreznih parov.
 [*----------------------------------------------------------------------------*)
 
-let pretvori_v_seznam_parov _ = ()
+let pretvori_v_seznam_parov niz =
+  niz
+  |> String.trim
+  |> String.split_on_char '\n'
+  |> List.map razdeli_vrstico
+
+let pretvori_v_seznam_parov2 niz =
+  let niz1 = String.trim niz in
+  let seznam = String.split_on_char '\n' niz1 in
+  List.map razdeli_vrstico seznam
 
 let primer_seznam_2 = pretvori_v_seznam_parov "mleko, 2\nkruh, 1\njabolko, 5"
 (* val primer_seznam_2 : (string * string) list =
@@ -149,7 +169,8 @@ let primer_seznam_2 = pretvori_v_seznam_parov "mleko, 2\nkruh, 1\njabolko, 5"
  elementov seznama.
 [*----------------------------------------------------------------------------*)
 
-let pretvori_druge_komponente _ _ = ()
+let pretvori_druge_komponente f =
+  List.map (fun (x, y) -> (x, f y))
 
 let primer_seznam_3 =
   let seznam = [("ata", "mama"); ("teta", "stric")] in
@@ -162,7 +183,21 @@ let primer_seznam_3 =
  znesek nakupa.
 [*----------------------------------------------------------------------------*)
 
-let izracunaj_skupni_znesek _ _ = ()
+let izracunaj_skupni_znesek cenik niz = 
+  let cenik =
+    cenik
+  |> pretvori_v_seznam_parov
+  |> pretvori_druge_komponente float_of_string
+  in
+  let cena_izdelka (izdelek, kolicina) =
+    let cena = List.assoc izdelek cenik in
+    float_of_int kolicina *. cena
+  in
+  niz
+  |> pretvori_v_seznam_parov
+  |> pretvori_druge_komponente int_of_string
+  |> List.map cena_izdelka
+  |> vsota_seznama
 
 let primer_seznam_4 = 
   let nakupovalni_seznam = "mleko, 2\njabolka, 5"
