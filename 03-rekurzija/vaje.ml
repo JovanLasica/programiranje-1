@@ -269,7 +269,12 @@ let primer_apply_sequence_2 = apply_sequence (fun x -> x * x) 2 (-5)
   Pri tem ne smete uporabiti vgrajene funkcije `List.filter`.
 [*----------------------------------------------------------------------------*)
 
-let rec filter _ _ = ()
+let rec filter f list =
+  match list with
+  | [] -> []
+  | x :: xs ->
+    if f x then x :: filter f xs
+    else filter f xs
 
 let primer_filter = filter ((<)3) [0; 1; 2; 3; 4; 5]
 (* val primer_filter : int list = [4; 5] *)
@@ -285,8 +290,25 @@ let primer_filter = filter ((<)3) [0; 1; 2; 3; 4; 5]
   Pri tem ne smete uporabiti vgrajene funkcije `List.find` ali podobnih.
 [*----------------------------------------------------------------------------*)
 
-let rec exists _ _ = ()
+let exists_brez_rec f list =
+  List.length (filter f list) > 0
 
+let rec exists_ntrec f list =
+  match list with
+  | [] -> false
+  | x :: xs ->
+    if f x then true
+    else exists_ntrec f xs
+
+let exists f list =
+  let rec aux l =
+    match l with
+    | [] -> false
+    | x :: xs -> if f x then true
+    else aux xs
+  in
+  aux list
+  
 let primer_exists_1 = exists ((<) 3) [0; 1; 2; 3; 4; 5]
 (* val primer_exists_1 : bool = true *)
 
@@ -304,7 +326,18 @@ let primer_exists_2 = exists ((<) 8) [0; 1; 2; 3; 4; 5]
   Pri tem ne smete uporabiti vgrajene funkcije `List.find` ali podobnih.
 [*----------------------------------------------------------------------------*)
 
-let rec first _ _ _ = ()
+let first_acc f default list =
+  let rec aux l =
+    match l with
+    | [] -> default
+    | x :: xs -> if f x then x else aux xs
+  in
+  aux list
+
+let rec first f default list =
+  match list with
+  | [] -> default
+  | x :: xs -> if f x then x else first f default xs
 
 let primer_first_1 = first ((<) 3) 0 [1; 1; 2; 3; 5; 8]
 (* val primer_first_1 : int = 5 *)
