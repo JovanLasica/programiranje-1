@@ -344,3 +344,10 @@ let primer_first_1 = first ((<) 3) 0 [1; 1; 2; 3; 5; 8]
 
 let primer_first_2 = first ((<) 8) 0 [1; 1; 2; 3; 5; 8]
 (* val primer_first_2 : int = 0 *)
+
+(* Dodatna vaja - funkcija @ append *)
+
+let rec append list1 list2 =
+  match list1 with
+  | [] -> list2
+  | x :: xs -> x :: (append xs list2)
