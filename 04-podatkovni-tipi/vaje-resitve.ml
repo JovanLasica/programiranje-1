@@ -166,7 +166,7 @@ type status =
   | Student of magic * int
   | Employed of magic * specialisation
 
-type wizard = { name : string; status : status }
+type wizard = {name : string; status : status }
 
 let professor = { name = "Professor"; status = Employed (Fire, Teacher) }
 let jaina = { name = "Jaina"; status = Student (Frost, 4) }
@@ -223,7 +223,7 @@ let find_candidate magic specialisation wizards =
   let rec find_candidate' wizards =
     match wizards with
     | [] -> None
-    | { name; status = Student (magic', years) } :: wizards' ->
+    | {name; status = Student (magic', years) } :: wizards' ->
         if magic = magic' then
           if
             years

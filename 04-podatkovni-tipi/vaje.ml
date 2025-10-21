@@ -138,9 +138,9 @@ let rec intbool_separate ib_list =
  tip `specialisation`, ki loči med temi zaposlitvami.
 [*----------------------------------------------------------------------------*)
 
-type magic 
+type magic = Fire | Frost | Arcane
 
-type specialisation 
+type specialisation = Historian | Teacher | Researcher
 
 (*----------------------------------------------------------------------------*
  Vsak od čarodejev začne kot začetnik, nato na neki točki postane študent, na
@@ -156,13 +156,16 @@ type specialisation
  `jaina`, ki je četrto leto študentka magije ledu.
 [*----------------------------------------------------------------------------*)
 
-type status 
+type status =
+| Newbie
+| Student of magic * int
+| Employed of magic * specialisation
 
-type wizard 
+type wizard = {name: string; status: status}
 
-let professor  = ()
+let professor  = {name = "Professor"; status = Employed (Fire, Teacher)}
 
-let jaina  = ()
+let jaina  = {name = "Jaina"; status = Student (Frost, 4)}
 
 (*----------------------------------------------------------------------------*
  Želimo prešteti koliko uporabnikov posamezne od vrst magije imamo na akademiji.
@@ -171,9 +174,13 @@ let jaina  = ()
  nov števec s posodobljenim poljem glede na vrednost `magic`.
 [*----------------------------------------------------------------------------*)
 
-type magic_counter 
+type magic_counter = {fire: int; frost: int; arcane: int}
 
-let update _ _ = ()
+let update counter magic_type =
+  match magic_type with
+  | Fire -> {counter with fire = counter.fire + 1}
+  | Frost -> {counter with frost = counter.frost + 1}
+  | Arcane -> {counter with arcane = counter.frost + 1}
 
 (* let primer_carovniki_1 = update {fire = 1; frost = 1; arcane = 1} Arcane *)
 (* val primer_carovniki_1 : magic_counter = {fire = 1; frost = 1; arcane = 2} *)
@@ -183,7 +190,18 @@ let update _ _ = ()
  različnih vrst magij.
 [*----------------------------------------------------------------------------*)
 
-let count_magic _ = ()
+let count_magic list =
+  let rec aux wizards counter =
+    match wizards with
+    | [] -> counter
+    | {status = Employed(magic, _)} :: wizards' ->
+      aux wizards' (update counter magic)
+    | {status = Student(magic, _)} :: wizards' ->
+      aux wizards' (update counter magic)
+    | _ :: wizards' -> aux wizards' counter
+  in
+  aux list {fire = 0; frost = 0; arcane = 0}
+    
 
 (* let primer_carovniki_2 = count_magic [professor; professor; professor] *)
 (* val primer_carovniki_2 : magic_counter = {fire = 3; frost = 0; arcane = 0} *)
@@ -198,7 +216,23 @@ let count_magic _ = ()
  `None`.
 [*----------------------------------------------------------------------------*)
 
-let find_candidate _ _ _ = ()
+let find_candidate magic specialisation wizard_list =
+  let rec aux wizards =
+    match wizards with
+    | [] -> None
+    | { name; status = Student(magic', years)} :: wizards' ->
+      if magic = magic' then
+        match specialisation with
+        | Historian -> if years >=3 then Some name
+        else aux wizards'
+        |  Researcher -> if years >= 4 then Some name
+        else aux wizards'
+        | Teacher -> if years >= 5 then Some name
+        else aux wizards'        
+      else aux wizards'
+    | _ :: wizards' -> aux wizards'
+  in
+  aux wizard_list
 
 (* let primer_carovniki_3 =
   find_candidate Frost Researcher [professor; jaina] *)
