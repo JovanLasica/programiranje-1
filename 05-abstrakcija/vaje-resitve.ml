@@ -106,8 +106,8 @@ end
   [*----------------------------------------------------------------------------*)
 
 let sum_nat_100 =
-  (* let module Nat = Nat_int in *)
-  let module Nat = Nat_peano in
+  (* let module Nat = Nat_peano in *)
+  let module Nat = Nat_int in
   let rec sum n =
     if Nat.eq n Nat.zero then n else Nat.( + ) n (sum (Nat.( - ) n Nat.one))
   in

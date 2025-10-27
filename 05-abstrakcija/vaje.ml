@@ -18,11 +18,14 @@
 module type NAT = sig
   type t
 
-  val eq  : t -> t -> bool
+  val eq : t -> t -> bool
   val zero : t
-  (* Dodajte manjkajoče! *)
-  (* val to_int : t -> int *)
-  (* val of_int : int -> t *)
+  val one : t
+  val ( + ) : t -> t -> t
+  val ( - ) : t -> t -> t
+  val ( * ) : t -> t -> t
+  val to_int : t -> int
+  val of_int : int -> t
 end
 
 (*----------------------------------------------------------------------------*
@@ -36,9 +39,14 @@ end
 module Nat_int : NAT = struct
 
   type t = int
-  let eq x y = failwith "later"
+  let eq m n = ( m = n )
   let zero = 0
-  (* Dodajte manjkajoče! *)
+  let one = 1
+  let ( + ) = ( + )
+  let ( - ) = ( - )
+  let ( * ) = ( * )
+  let to_int n = n
+  let of_int n = n
 
 end
 
@@ -52,11 +60,31 @@ end
 [*----------------------------------------------------------------------------*)
 
 module Nat_peano : NAT = struct
+  type t = Zero | Suc of t
 
-  type t = unit (* To morate spremeniti! *)
-  let eq x y = failwith "later"
-  let zero = () (* To morate spremeniti! *)
-  (* Dodajte manjkajoče! *)
+  let rec eq x y =
+    match (x, y) with
+    | (Zero, Zero) -> true
+    | (Suc k, Suc l) -> eq k l
+    | _ -> false
+  let zero = Zero
+  let one = Suc Zero
+  let rec ( + ) m n =
+    match m with
+    | Zero -> n
+    | Suc k -> k + n
+  let rec ( - ) m n =
+    match (m, n) with
+    | _, Zero -> m
+    | Suc k, Suc l -> k - l
+    | Zero, _ -> Zero
+  let rec ( * ) m n =
+    match (m, n) with
+    | Zero, _ | _, Zero -> Zero
+    | k, Suc Zero -> k
+    | k, Suc l -> k + (k * l)
+  let rec to_int = function Zero -> 0 | Suc x -> Int.add 1 (to_int x)
+  let rec of_int = function 0 -> Zero | n -> Suc (of_int (Int.sub n 1))
 
 end
 
@@ -77,10 +105,14 @@ end
 [*----------------------------------------------------------------------------*)
 
 let sum_nat_100 = 
-  (* let module Nat = Nat_int in *)
-  let module Nat = Nat_peano in
-  Nat.zero (* to popravite na ustrezen izračun *)
-  (* |> Nat.to_int *)
+  (* let module Nat = Nat_peano in *)
+  let module Nat = Nat_int in
+  let rec sum n =
+    if Nat.eq n Nat.zero then n else Nat.( + ) n (sum (Nat.( - ) n Nat.one))
+  in
+  sum (Nat.of_int 100) |> Nat.to_int
+
+(* Še za module Nat = Nat_peano *)
 (* val sum_nat_100 : int = 5050 *)
 
 (*----------------------------------------------------------------------------*
