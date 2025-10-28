@@ -112,7 +112,7 @@ let sum_nat_100 =
   in
   sum (Nat.of_int 100) |> Nat.to_int
 
-(* Še za module Nat = Nat_peano *)
+(* Še za module Nat = Nat_peano - dodatna vaja doma *)
 (* val sum_nat_100 : int = 5050 *)
 
 (*----------------------------------------------------------------------------*
