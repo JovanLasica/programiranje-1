@@ -26,6 +26,7 @@ module type NAT = sig
   val ( * ) : t -> t -> t
   val to_int : t -> int
   val of_int : int -> t
+  val to_str : t -> string
 
 end
 
@@ -41,6 +42,7 @@ module Nat_int : NAT = struct
 
   type t = int
   let eq m n = ( m = n )
+
   let zero = 0
   let one = 1
   let ( + ) = ( + )
@@ -48,7 +50,7 @@ module Nat_int : NAT = struct
   let ( * ) = ( * )
   let to_int n = n
   let of_int n = n
-  let to_str n = failwith "later"
+  let to_str n = "[N_int]: " ^ (string_of_int n)
 
 end
 
@@ -178,7 +180,7 @@ module Nat_pair (A: NAT) (B: NAT) : NAT = struct
   let ( * ) (x1, y1) (x2, y2) = (A.( * ) x1 x2, B.( * ) y1 y2)
   let to_int (x, y) = Int.add (A.to_int x) (B.to_int y)
   let of_int n = (A.of_int n, B.of_int n)
-  let to_str (a, b) = failwith "later"
+  let to_str (a, b) = "[N_pair]: ( " ^ A.to_str a ^ ", " ^ B.to_str b ^ " )" 
 
 end
 
@@ -289,13 +291,16 @@ module Polar : COMPLEX = struct
   let normalize_arg arg = if arg >= 2. *. pi then arg -. (2. *. pi) else arg
 
   let eq z w = z = w
-  let zero = {magn = 0; arg = 0}
-  let one = {magn = 1; arg = 0}
-  let i = {magn = 1; arg = pi /. 2}
+  let zero = {magn = 0.; arg = 0.}
+  let one = {magn = 1.; arg = 0.}
+  let i = {magn = 1.; arg = pi /. 2.}
   let neg z = {z with arg = normalize_arg (pi +. z.arg)}
   let conj z = {z with arg = -. z.arg}
-  let ( ++ ) z w = failwith "later"
-  let ( ** ) z w = {magn = z.magn *. w.magn; arg = normalize_arg (z.arg + w.arg)}
+  let ( ++ ) z w =
+    let re = (z.magn *. cos (z.arg)) +. (w.magn *. cos (w.arg)) in
+    let im = (z.magn *. sin (z.arg)) +. (w.magn *. sin (w.arg)) in
+    {magn = sqrt ((re *. re) +. (im *. im)); arg = atan (im /. re)}
+  let ( ** ) z w = {magn = z.magn *. w.magn; arg = normalize_arg (z.arg +. w.arg)}
   let to_str z = "{magn = " ^ string_of_float z.magn ^ "; arg = " ^ string_of_float (deg_of_rad z.arg) ^ "°}"
 
 end
