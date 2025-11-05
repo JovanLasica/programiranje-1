@@ -16,5 +16,7 @@
 			]
 		}
 	},
-	"remoteUser": "opam"
+	"remoteUser": "opam",
+	
+	"updateContentCommand": ""
 }
