@@ -3,8 +3,8 @@
 -- (A x B) ^ C <=> A ^ C x B ^ C
 def eksponent (A B C : Type) (f : C → Prod A B) : Prod (C → A) (C → B) :=
   ⟨
-    sorry,
-    sorry
+    fun c => fst f c
+    fun c => snd f c
   ⟩
 def eksponent_prop (A B C : Prop) (f : C → A ∧ B) : (C → A) ∧ (C → B) :=
   ⟨
