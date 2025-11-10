@@ -36,20 +36,20 @@ RUN pip install wheel
 # Install Jupyter and Jupyter Book without using the cache to save space.
 # '--no-cache-dir' ensures that the packages are not cached.
 # '--no-warn-script-location' prevents warnings about scripts being outside of the environment’s bin.
-RUN pip install --no-cache-dir --no-warn-script-location jupyter jupyter-book
+# RUN pip install --no-cache-dir --no-warn-script-location jupyter jupyter-book
 
 # Install OCaml packages:
 # - jupyter: OCaml kernel for Jupyter
 # - ocaml-lsp-server: Language server for OCaml (used by IDEs for features like autocompletion)
 # - ocamlformat: Auto-formatting tool for OCaml code
 # - utop: A better interactive OCaml toplevel
-RUN opam install jupyter ocaml-lsp-server ocamlformat.0.26.2 utop
+# RUN opam install --yes jupyter ocaml-lsp-server ocamlformat.0.26.2 utop
 
 # Generate the OCaml Jupyter kernel specification to enable Jupyter to use OCaml as a kernel
-RUN /home/opam/.opam/4.14/bin/ocaml-jupyter-opam-genspec
+# RUN /home/opam/.opam/4.14/bin/ocaml-jupyter-opam-genspec
 
 # Install the OCaml Jupyter kernel for the current user in Jupyter, using the generated specification
-RUN jupyter kernelspec install --name ocaml-jupyter "$(opam var share)/jupyter" --user
+# RUN jupyter kernelspec install --name ocaml-jupyter "$(opam var share)/jupyter" --user
 
 # Install elan (Lean version manager)
 RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf \
