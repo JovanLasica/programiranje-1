@@ -153,7 +153,7 @@ let rec member2 x = function
 let succ bst =
   let rec minimal = function
   | Empty -> None
-  | Node (_, x, Empty) -> x
+  | Node (_, x, Empty) -> Some x
   | Node (l, _, _) -> minimal l
   in
   match bst with
@@ -163,7 +163,7 @@ let succ bst =
 let pred bst =
   let rec maximal = function
   | Empty -> None
-  | Node (Empty, x, _) -> x
+  | Node (Empty, x, _) -> Some x
   | Node (_, _, r) -> maximal r
   in
   match bst with
@@ -214,6 +214,10 @@ let rec delete x = function
      "c":-2
 [*----------------------------------------------------------------------------*)
 
+type ('key, 'value) dict = ('key * 'value) tree
+
+let test_dict : (string, int) dict =
+    Node (leaf ("a", 0), ("b", 1), Node (leaf ("c", -2), ("d", 2), Empty))
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_get key dict] v slovarju poišče vrednost z ključem [key]. Ker
@@ -225,6 +229,10 @@ let rec delete x = function
  - : int option = Some (-2)
 [*----------------------------------------------------------------------------*)
 
+let rec dict_get key = function
+  | Empty -> None
+  | Node (l, (k, v), r) ->
+      if key = k then (Some v) else if key < k then (dict_get key l) else (dict_get key r)
       
 (*----------------------------------------------------------------------------*]
  Funkcija [print_dict] sprejme slovar s ključi tipa [string] in vrednostmi tipa
@@ -242,6 +250,14 @@ let rec delete x = function
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
+let rec print_dict = function
+  | Empty -> ()
+  | Node (d_l, (k, v), d_r) ->
+      print_dict d_l;
+      print_string (k ^ " : ");
+      print_int v;
+      print_newline ();
+      print_dict d_r
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_insert key value dict] v slovar [dict] pod ključ [key] vstavi
@@ -262,6 +278,13 @@ let rec delete x = function
  - : unit = ()
 [*----------------------------------------------------------------------------*)
 
+let rec dict_insert k v = function
+  | Empty -> leaf (k, v)
+  | Node (l, (k', _), r) when k = k' -> Node (l, (k, v), r)
+  | Node (l, (k', v'), r) when k < k' -> Node (dict_insert k v l, (k', v'), r)
+  | Node (l, (k', v'), r) (* when k > k' *) ->
+      Node (l, (k', v'), dict_insert k v r)
+
 (*----------------------------------------------------------------------------*]
  Napišite primerno signaturo za slovarje [DICT] in naredite implementacijo
  modula z drevesi. 
@@ -270,6 +293,51 @@ let rec delete x = function
  [print] (print naj ponovno deluje zgolj na [(string, int) t].
 [*----------------------------------------------------------------------------*)
 
+module type DICT = sig
+  type key
+  type value
+  type t
+
+  val empty : t
+  val get : key -> t -> value option
+  val insert : key -> value -> t -> t
+  val print : t -> unit
+
+end
+
+module Tree_dict : DICT
+  with type key = string
+   and type value = int = struct
+
+  type key = string
+  type value = int
+  type t = (key * value) tree
+
+  let empty = Empty
+
+  let rec get key = function
+  | Empty -> None
+  | Node (l, (k, v), r) ->
+      if key = k then (Some v) else if key < k then (dict_get key l) else (dict_get key r)
+
+let rec insert k v = function
+  | Empty -> leaf (k, v)
+  | Node (l, (k', _), r) when k = k' -> Node (l, (k, v), r)
+  | Node (l, (k', v'), r) when k < k' -> Node (dict_insert k v l, (k', v'), r)
+  | Node (l, (k', v'), r) (* when k > k' *) ->
+      Node (l, (k', v'), dict_insert k v r)
+
+
+let rec print = function
+  | Empty -> ()
+  | Node (d_l, (k, v), d_r) ->
+      print_dict d_l;
+      print_string (k ^ " : ");
+      print_int v;
+      print_newline ();
+      print_dict d_r
+
+end
 
 (*----------------------------------------------------------------------------*]
  Funkcija [count (module Dict) list] prešteje in izpiše pojavitve posameznih
@@ -281,3 +349,15 @@ let rec delete x = function
  n : 2
  - : unit = ()
 [*----------------------------------------------------------------------------*)
+
+let count (module D : DICT with type key = string and type value = int) lst =
+  let dict =
+    List.fold_left
+      (fun d x ->
+         match D.get x d with
+         | None -> D.insert x 1 d
+         | Some n -> D.insert x (n + 1) d)
+      D.empty
+      lst
+  in
+  D.print dict

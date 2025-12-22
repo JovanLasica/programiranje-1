@@ -325,7 +325,7 @@ let rec dict_insert k v = function
 
 (*
    V praksi v ocamlu za slovarje uporabljamo modul `Map` (poglejte si dokumentacijo).
-   Za delo s splošnimi tipi ključev in vrednosti uporabimo `Map.Make`, kjer mu podamo ttip ključa in primerjalno funkcijo za ključe.
+   Za delo s splošnimi tipi ključev in vrednosti uporabimo `Map.Make`, kjer mu podamo tip ključa in primerjalno funkcijo za ključe.
 *)
 (* Nekateri moduli imajo to že vgrajeno *)
 module StringMap = Map.Make (String)
