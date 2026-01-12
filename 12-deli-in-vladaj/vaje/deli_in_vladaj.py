@@ -21,6 +21,24 @@
 #
 ###############################################################################
 
+def merge(target, list_1, list_2):
+    i = j = k = 0
+    while i < len(list_1) and j < len(list_2):
+        if list_1[i] <= list_2[j]:
+            target[k] = list_1[i]
+            i += 1
+        else:
+            target[k] = list_2[j]
+            j += 1
+        k += 1
+    while i < len(list_1):
+        target[k] = list_1[i]
+        i += 1
+        k += 1
+    while j < len(list_2):
+        target[k] = list_2[j]
+        j += 1
+        k += 1
 
 ###############################################################################
 # Tabelo želimo urediti z zlivanjem (merge sort). Tabelo razdelimo na polovici,
@@ -37,6 +55,17 @@
 #     >>> a
 #     [2, 3, 4, 5, 10, 11, 15, 17, 18]
 ###############################################################################
+
+def mergesort(a):
+    if len(a) <= 1:
+        return a
+    else:
+        mid = len(a) // 2
+        left = a[:mid]
+        right = a[mid:]
+        mergesort(left)
+        mergesort(right)
+        merge(a, left, right)
 
 ###############################################################################
 # Na predavanjih ste implementirali imperativno verzijo pivotiranja v OCamlu, 
@@ -71,6 +100,20 @@
 #     [10, 0, 2, 4, 11, 5, 17, 15, 18]
 ###############################################################################
 
+def pivot(a, start, end):
+    pivot_value = a[start]
+    left = start + 1
+    right = end
+    while left <= right:
+        while left <= right and a[left] <= pivot_value:
+            left += 1
+        while left <= right and a[right] > pivot_value:
+            right -= 1
+        if left < right:
+            a[left], a[right] = a[right], a[left]
+    pivot_index = right
+    a[start], a[pivot_index] = a[pivot_index], a[start]
+    return pivot_index
 
 ###############################################################################
 # V tabeli želimo poiskati vrednost k-tega elementa po velikosti.
@@ -87,6 +130,20 @@
 # rešite brez da v celoti uredite tabelo [a].
 ###############################################################################
 
+def kth_element(a, k):
+    def kth_helper(a, k, start, end):
+        if start == end:
+            return a[start]
+        pivot_idx = pivot(a, start, end)
+        if k == pivot_idx:
+            return a[pivot_idx]
+        elif k < pivot_idx:
+            return kth_helper(a, k, start, pivot_idx - 1)
+        else:
+            return kth_helper(a, k, pivot_idx + 1, end)
+    if k < 0 or k >= len(a):
+        raise IndexError(f"k mora biti med 0 in {len(a)-1}")
+    return kth_helper(a, k, 0, len(a) - 1)
 
 ###############################################################################
 # Tabelo a želimo urediti z algoritmom hitrega urejanja (quicksort).
@@ -102,3 +159,14 @@
 #     >>> a
 #     [2, 3, 4, 5, 10, 11, 15, 17, 18]
 ###############################################################################
+
+def quicksort(a):
+    def quicksort_part(a, start, end):
+        if start >= end:
+            return None
+        pivot_idx = pivot(a, start, end)
+        quicksort_part(a, start, pivot_idx - 1)
+        quicksort_part(a, pivot_idx + 1, end)
+    if len(a) <= 1:
+        return None
+    quicksort_part(a, 0, len(a) - 1)

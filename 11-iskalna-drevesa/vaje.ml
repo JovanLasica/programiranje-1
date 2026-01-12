@@ -150,7 +150,7 @@ let rec member2 x = function
  # pred (Node(Empty, 5, leaf 7));;
  - : int option = None
 [*----------------------------------------------------------------------------*)
-let succ bst =
+let pred bst =
   let rec minimal = function
   | Empty -> None
   | Node (_, x, Empty) -> Some x
@@ -158,9 +158,9 @@ let succ bst =
   in
   match bst with
   | Empty -> None
-  | Node (_, _, r) -> Some (minimal r)
+  | Node (_, _, r) -> minimal r
 
-let pred bst =
+let succ bst =
   let rec maximal = function
   | Empty -> None
   | Node (Empty, x, _) -> Some x
@@ -168,7 +168,7 @@ let pred bst =
   in
   match bst with
   | Empty -> None
-  | Node (l, _, _) -> Some (maximal l)
+  | Node (l, _, _) -> maximal l
 
 (*----------------------------------------------------------------------------*]
  Na predavanjih ste omenili dva načina brisanja elementov iz drevesa. Prvi 
@@ -190,8 +190,9 @@ let rec delete x = function
   | Node (l, y, r) as bst ->
       match succ bst with
       | None -> l
-      | Some s -> let clean = delete s r
-        in Node (l, s, clean) 
+      | Some s ->
+        let clean = delete s r in
+        Node (l, s, clean)
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  SLOVARJI
