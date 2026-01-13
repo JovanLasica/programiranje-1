@@ -11,12 +11,42 @@ from functools import cache
 # podzaporedje `[2, 3, 4, 4, 6, 7, 8, 9]`.
 # -----------------------------------------------------------------------------
 
+def najdaljse_narascajoce_podazporedje(s):
+    n = len(s)
+    rezultati = [[] for _ in range(n)]
+    koncna_resitev = []
+    for i in range(n - 1, -1, -1):
+        rezultati[i] = [s[i]]
+        for j in range(i + 1, n):
+            if s[j] >= s[i]:
+                narascajoc_podseznam = [s[i]] + rezultati[j]
+                if len(narascajoc_podseznam) > len(rezultati[i]):
+                    rezultati[i] = narascajoc_podseznam
+        if len(rezultati[i]) > len(koncna_resitev):
+            koncna_resitev = rezultati[i]
+    return koncna_resitev
+    
 # -----------------------------------------------------------------------------
 # Rešitev sedaj popravite tako, da funkcija `vsa_najdaljsa` vrne seznam vseh
 # najdaljših naraščajočih podzaporedij.
 # -----------------------------------------------------------------------------
 
-
+def vsa_najdaljsa(s):
+    n = len(s)
+    rezultati = [[] for _ in range(n)]
+    koncne_resitve = [[]]
+    for i in range(n - 1, -1, -1):
+        rezultati[i] = [s[i]]
+        for j in range(i + 1, n):
+            if s[j] >= s[i]:
+                narascajoc_podseznam = [s[i]] + rezultati[j]
+                if len(narascajoc_podseznam) > len(rezultati[i]):
+                    rezultati[i] = narascajoc_podseznam
+        if len(rezultati[i]) > len(koncne_resitve[0]):
+            koncne_resitve = rezultati[i]
+        elif len(rezultati[i]) == len(koncne_resitve[0]):
+            koncne_resitve.append(rezultati[i])
+    return koncne_resitve
 
 # =============================================================================
 # Žabica
@@ -43,7 +73,24 @@ from functools import cache
 # dva.
 # =============================================================================
 
-
+def zabica(mocvara):
+    n = len(mocvara)
+    
+    @cache
+    def zaba(i, e):
+        if i > n:
+            return 0
+        elif i + e >= n:
+            return 1
+        najmanj_skokov = n
+        for s in range(1, e + 1):
+            nov_i = i + s
+            nov_e = e - s + mocvara[nov_i]
+            st_skokov = 1 + zaba(nov_i, nov_e)
+            najmanj_skokov = min(najmanj_skokov, st_skokov)
+        return najmanj_skokov
+    
+    return zaba(0, mocvara[0])
 
 # =============================================================================
 # Nageljni
@@ -66,7 +113,20 @@ from functools import cache
 #     [0, 1, 1, 0, 1, 1, 0, 1, 1]
 # =============================================================================
 
-
+@cache
+def nageljni(n, m, l):
+    if m * l + (m - 1) > n:
+        return []
+    if m == 0:
+        return [[0] * n]
+    postavitve = []
+    for resitev in nageljni(n - l - 1, m - 1, l):
+        nova_postavitev = [1] * l + [0] + resitev
+        postavitve.append(nova_postavitev)
+    for resitev in nageljni(n - 1, m, l):
+        nova_postavitev = [0] + resitev
+        postavitve.append(nova_postavitev)
+    return postavitve
 
 # =============================================================================
 # Pobeg iz Finske
